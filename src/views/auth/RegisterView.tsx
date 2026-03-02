@@ -3,6 +3,7 @@ import type { Auth } from "@/types/auth"
 import { toastApiError } from "@/utils/apiError"
 import { useMutation } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
+import { Link } from "react-router"
 import { toast } from "sonner"
 
 export default function RegisterView() {
@@ -43,6 +44,8 @@ export default function RegisterView() {
                 {/* <input type="date" placeholder="Fecha de nacimiento" {...register("birthdate")} /> */}
                 <button type="submit">Registrarse</button>
             </form>
+
+            <Link to="/login">Ya tienes cuenta? Inicia sesión</Link>
 
         </section>
     )

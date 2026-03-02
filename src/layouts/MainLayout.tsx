@@ -1,16 +1,16 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Outlet, Navigate } from "react-router";
 
-export default function AuthLayout() {
+export default function MainLayout() {
     const { data, isLoading } = useAuth()
 
     if (isLoading) return <div>Loading...</div>
 
-    if (data) return <Navigate to="/bar" />
+    if (!data) return <Navigate to="/login" />
 
     return (
-        <main className="flex min-h-screen items-center justify-center">
+        <div>
             <Outlet />
-        </main>
+        </div>
     )
 }

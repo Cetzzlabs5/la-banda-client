@@ -6,6 +6,8 @@ import RegisterView from './views/auth/RegisterView'
 import RequestNewCodeView from './views/auth/RequestNewCodeView'
 import ConfirmAccountView from './views/auth/ConfirmAccountView'
 import LoginView from './views/auth/LoginView'
+import MainLayout from './layouts/MainLayout'
+import ProfileView from './views/user/ProfileView'
 
 export default function Router() {
     return (
@@ -19,6 +21,10 @@ export default function Router() {
                     <Route path="/request-code" element={<RequestNewCodeView />} />
                     <Route path="/confirm-account" element={<ConfirmAccountView />} />
                     <Route path="/login" element={<LoginView />} />
+                </Route>
+
+                <Route path='/bar' element={<MainLayout />}>
+                    <Route index element={<ProfileView />} />
                 </Route>
             </Routes>
         </BrowserRouter>
