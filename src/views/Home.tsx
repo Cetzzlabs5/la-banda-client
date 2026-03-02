@@ -1,5 +1,6 @@
 import { testAPI } from "@/API/TestAPI"
 import { useQuery } from "@tanstack/react-query"
+import { Link } from "react-router"
 
 export default function Home() {
 
@@ -12,6 +13,9 @@ export default function Home() {
     if (error) return <div>Error: {error.message}</div>
 
     if (data) return (
-        <div>{data}</div>
+        <div>
+            {data}
+            <Link to="/register">Register</Link>
+        </div>
     )
 }

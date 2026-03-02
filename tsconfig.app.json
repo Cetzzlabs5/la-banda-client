@@ -30,8 +30,8 @@
       "@/types/*": [
         "types/*"
       ],
-      "@/lib/*": [
-        "lib/*"
+      "@/libs/*": [
+        "libs/*"
       ],
       "@/utils/*": [
         "utils/*"
