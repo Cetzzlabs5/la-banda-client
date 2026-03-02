@@ -6,3 +6,9 @@ export interface Auth {
     email: string;
     birthdate?: Date
 }
+
+export type RequestToken = Pick<Auth, 'email'>
+
+export type ConfirmToken = {
+    token: string
+}
