@@ -4,7 +4,7 @@ export interface Auth {
     password?: string;
     confirmPassword?: string
     email: string;
-    birthdate?: Date
+    birthdate?: Date;
 }
 
 export type RequestToken = Pick<Auth, 'email'>
@@ -14,6 +14,8 @@ export type ConfirmToken = {
 }
 
 export type LoginFormDataType = Pick<Auth, 'email' | 'password'>
+export type NewPasswordForm = Pick<Auth, 'password' | 'confirmPassword'>
+export type ForgotPasswordForm = Pick<Auth, 'email'>
 
 export interface User extends Auth {
     _id: string

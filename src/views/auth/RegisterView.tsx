@@ -46,6 +46,7 @@ export default function RegisterView() {
             </form>
 
             <Link to="/login">Ya tienes cuenta? Inicia sesión</Link>
+            <Link to={'/forgot-password'}> Olvide mi contraseña</Link>
 
         </section>
     )

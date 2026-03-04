@@ -8,6 +8,8 @@ import ConfirmAccountView from './views/auth/ConfirmAccountView'
 import LoginView from './views/auth/LoginView'
 import MainLayout from './layouts/MainLayout'
 import ProfileView from './views/user/ProfileView'
+import ForgotPasswordView from './views/auth/ForgotPasswordView'
+import NewPasswordView from './views/auth/NewPasswordView'
 
 export default function Router() {
     return (
@@ -21,6 +23,8 @@ export default function Router() {
                     <Route path="/request-code" element={<RequestNewCodeView />} />
                     <Route path="/confirm-account" element={<ConfirmAccountView />} />
                     <Route path="/login" element={<LoginView />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordView />} />
+                    <Route path="/new-password" element={<NewPasswordView />} />
                 </Route>
 
                 <Route path='/bar' element={<MainLayout />}>

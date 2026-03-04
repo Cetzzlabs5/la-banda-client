@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import { useMutation } from "@tanstack/react-query"
 import { login } from "@/API/AuthAPI"
 import { useNavigate } from "react-router"
+import { Link } from "react-router"
 
 export default function LoginView() {
     const navigate = useNavigate()
@@ -38,6 +39,8 @@ export default function LoginView() {
                     {...register('password')} />
                 <button type="submit">Login</button>
             </form>
+            <Link to={'/register'}> Crear una cuenta </Link>
+            <Link to={'/forgot-password'}> Olvide mi contraseña </Link>
         </div>
     )
 }
