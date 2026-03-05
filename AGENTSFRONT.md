@@ -16,7 +16,7 @@
 **Responsabilidad:** Desarrollo de la interfaz de usuario, PWA B2C/B2B y Panel Web, enfocado en resiliencia offline y UX.
 **Tecnologías:** React (v19.2), Vite, TypeScript, React Router (v7), Tailwind CSS (v4.2.1), Chakra UI (@chakra-ui/pin-input), TanStack React Query, Axios, React Hook Form, Zod.
 **Reglas Estrictas:**
-1. **Tipado Estricto Front-to-Back:** Prohibido usar `any`. Utiliza Zod obligatoriamente para la validación de formularios (React Hook Form) y validación de esquemas/DTOs en respuestas del backend (Axios/React Query).
+1. **Tipado Estricto Front-to-Back:** Prohibido usar `any`. Para la validación de formularios, utiliza las reglas integradas de React Hook Form pasándolas como opciones a la función `register` (ej. `required`, `pattern`) y muestra los errores con el componente `<ErrorMessage>`. Obligatorio el uso de Zod para la validación de esquemas/DTOs en respuestas expuestas por el backend (Axios/React Query).
 2. **Resiliencia Offline-First:** Configura Service Workers e implementa estrategias de caché en LocalStorage/IndexedDB para garantizar la disponibilidad offline de información crítica (puntos, QR estático de entrada).
 3. **Separación de Fetching y UI:** Encapsula toda la lógica de obtención/mutación de estado del servidor con TanStack React Query en hooks personalizados `/hooks`. Prohibido hacer fetch directo dentro de componentes de UI.
 4. **Nomenclatura y Estructura:** Utiliza `kebab-case` para archivos y carpetas (`/views/auth/`), `PascalCase` para componentes y clases React, y `camelCase` para variables y funciones.
