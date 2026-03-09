@@ -4,6 +4,8 @@ export interface Auth {
     password?: string;
     confirmPassword?: string
     email: string;
+    phone?: string;
+    fullName?: string;
     birthdate?: Date;
 }
 
