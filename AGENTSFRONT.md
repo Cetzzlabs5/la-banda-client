@@ -351,68 +351,304 @@ barMissions {
 
 ---
 
-# 🎨 IDENTIDAD VISUAL: CETZZ NIGHTS (CYBER-GAMING)
+# La Banda — Design System & Agent Rules
 
-Este estándar define la apariencia de la plataforma "La Banda". El objetivo es una estética High-End Esports/Nightlife. **Toda nueva pantalla debe respetar estrictamente estas reglas.**
+> Este archivo define las reglas de diseño, arquitectura y estilo que el agente **siempre** debe respetar al generar o modificar código del proyecto.
 
-## 1. Paleta de Colores
+---
 
-| Token | Valor Hex | Uso |
-|---|---|---|
-| `--color-bg-base` | `#081726` | Fondo principal (Deep Night) |
-| `--color-surface` | `#0f2a44` | Superficies/Cards (Navy) — opacity 0.7 + backdrop-blur: 12px |
-| `--color-accent` | `#1fa4a9` | Acento Primario Cian — Interacciones, bordes activos, iconos |
-| `--color-amber` | `#e08e2e` | Acento Secundario Amber — Puntos, monedas, status, badges |
-| `--color-text-main` | `#f4f7fa` | Texto principal (Off-white) |
-| `--color-text-muted` | `#64748b` | Texto secundario/labels (Grey-blue) |
+## 0. Principio fundamental
 
-## 2. Reglas de Componentes (Geometría Agresiva)
+Nunca uses valores hardcodeados de color, tipografía, spacing o animación.
+**Todo** sale de los tokens del design system definidos en `index.css` (variables CSS `--color-*`, `--font-*`, `--space-*`, etc.) o del archivo `src/app/components/ui/ds.ts` cuando usas JS/TSX.
 
-### Botones Rhombus (Obligatorio)
-- Todo botón de acción primaria **debe** usar: `clip-path: polygon(8% 0, 100% 0, 92% 100%, 0% 100%);`
-- Efecto: `box-shadow` pulsante en el color de acento (ver variable `--glow-cyan` / `--glow-amber`).
-- Componente base: `<CyberButton>` en `/src/components/ui/CyberButton.tsx`.
+---
 
-### Cards Squad (Cortes Diagonales)
-- **No usar** `border-radius` estándar. Aplicar `clip-path` con cortes diagonales de **20px** en esquina superior-derecha e inferior-izquierda.
-- `clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));`
-- Borde: `1px solid rgba(31, 164, 169, 0.25)`. Glow: `box-shadow: 0 0 15px rgba(31, 164, 169, 0.08)`.
-- Componente base: `<CyberCard>` en `/src/components/ui/CyberCard.tsx`.
+## 1. Estructura de archivos (arquitectura escalable)
 
-### Inputs
-- Fondo transparente/muy oscuro. Borde: `1px solid rgba(100, 116, 139, 0.4)`.
-- Focus: borde cambia a `--color-accent` con glow `box-shadow: 0 0 0 1px rgba(31,164,169,0.3)`.
-- Componente base: `<CyberInput>` en `/src/components/ui/CyberInput.tsx`.
+```
+src/
+├── app/
+│   ├── components/
+│   │   ├── ui/           ← primitivos reutilizables (Button, Card, Badge, Input…)
+│   │   │   └── ds.ts     ← tokens JS (C, F)
+│   │   ├── shared/       ← componentes compuestos reutilizables (PointsCard, LevelBadge…)
+│   │   └── layout/       ← Layout, BottomNav, PageWrapper
+│   ├── pages/            ← una página = un archivo, sin lógica de negocio pesada
+│   ├── hooks/            ← custom hooks (useAuth, usePoints…)
+│   ├── data/             ← mockData, types, schemas
+│   └── routes.tsx
+├── styles/
+│   └── index.css         ← fuente de verdad de todos los tokens
+```
+
+**Reglas de arquitectura:**
+- Un componente = un único responsable. Si supera ~120 líneas, extráelo.
+- Props mínimas: usa variantes (`variant="primary" | "ghost"`) en vez de props booleanas múltiples.
+- No dupliques estilos en línea que ya existan como clase utilitaria en `index.css`.
+- Usa `React.memo` en componentes de lista (cards, items de nav).
+
+---
+
+## 2. Tokens de color
+
+Los colores vienen de las variables CSS. En TSX usa el objeto `C` de `ds.ts`:
+
+| Token CSS                    | JS (`C.`)          | Valor          | Uso |
+|------------------------------|--------------------|----------------|-----|
+| `--color-lime`               | `C.lime`           | `#C8FF00`      | Acento principal, puntos, activo |
+| `--color-lime-dim`           | `C.limeDim`        | rgba lime 12%  | Fondo de elementos activos/lime |
+| `--color-lime-glow`          | `C.limeGlow`       | rgba lime 25%  | Glow blobs decorativos |
+| `--color-lime-border`        | `C.limeBorder`     | rgba lime 22%  | Bordes con acento lime |
+| `--color-bg`                 | `C.bg`             | `#080808`      | Fondo de la app |
+| `--color-surface`            | `C.surface`        | `#111111`      | Cards principales |
+| `--color-surface-2`          | `C.surface2`       | `#181818`      | Cards secundarias, inputs |
+| `--color-surface-3`          | `C.surface3`       | `#202020`      | Hover states, layers |
+| `--color-border`             | `C.border`         | rgba white 7%  | Bordes sutiles |
+| `--color-border-hover`       | `C.borderHover`    | rgba white 14% | Hover en bordes |
+| `--color-text-primary`       | `C.textPrimary`    | `#FFFFFF`      | Texto principal |
+| `--color-text-secondary`     | `C.textSecondary`  | `#888888`      | Texto secundario |
+| `--color-text-muted`         | `C.textMuted`      | `#444444`      | Labels, overlines |
+| `--color-error`              | `C.error`          | `#FF4455`      | Errores, destructivos |
+| `--color-error-dim`          | `C.errorDim`       | rgba error 15% | Fondo de estados error |
+
+---
 
 ## 3. Tipografía
 
-| Uso | Fuente | Estilo |
-|---|---|---|
-| Headers / Títulos | `Inter` (font-sans) | `uppercase`, `tracking-wider`, `text-shadow` con color de acento |
-| Data / Números / IDs | `JetBrains Mono` (font-mono) | Peso 700, color amber con glow |
+### Familias
 
-## 4. Efectos y Animaciones
+| Uso | Familia | Token JS |
+|-----|---------|----------|
+| Títulos, números grandes, nombre de bares, puntos totales | `Space Grotesk` | `F.display` |
+| Botones, inputs, labels, cuerpo, navegación | `Plus Jakarta Sans` | `F.ui` |
 
-- **Glow Buttons:** `animation: pulse-glow 2s ease-in-out infinite` sobre `box-shadow`.
-- **Iconos Activos:** `drop-shadow` o `filter` con el color cian.
-- **Glassmorphism:** `backdrop-filter: blur(12-20px)` + `background: rgba(15,42,68,0.6-0.75)`.
+### Escala de texto (usa las variables CSS)
 
-## 5. Layout
+| Variable CSS       | rem      | px aprox. | Uso típico |
+|--------------------|----------|-----------|------------|
+| `--text-xs`        | 0.65rem  | 10px      | Overlines, etiquetas (`letterSpacing: widest`) |
+| `--text-sm`        | 0.75rem  | 12px      | Captions, muted text |
+| `--text-base`      | 0.875rem | 14px      | Cuerpo, botones, nav labels |
+| `--text-md`        | 1rem     | 16px      | Subtítulos |
+| `--text-lg`        | 1.2rem   | 19px      | Títulos de sección |
+| `--text-xl`        | 1.6rem   | 25px      | Headings de página |
+| `--text-2xl`       | 2.4rem   | 38px      | Hero heading |
+| `--text-3xl`       | 3.6rem   | 57px      | Número de puntos (display) |
 
-- **Mobile-First:** Diseño optimizado para 375px. Usar `max-w-lg mx-auto` en contenedores.
-- **Bottom Nav:** Barra persistente con efecto glassmorphism. Componente: `<BottomNav>` en `/src/components/layout/BottomNav.tsx`.
-- **Header Sticky:** Glass header con logo `<AppLogo>` + icono de notificación. Incluido en `<MainLayout>`.
-- **Safe Area:** `pb-24` en `<main>` para no quedar tapado por el Bottom Nav.
+### Reglas tipográficas
 
-## 6. Tailwind CSS v4.2.1 — Implementación
+- Los números de puntos/estadísticas usan **siempre** `F.display` + `--text-3xl` + `color: C.lime`.
+- Los overlines van en `uppercase` + `letterSpacing: 0.18–0.22em` + `color: C.textMuted`.
+- Los headings de página usan `letterSpacing: -0.03 a -0.04em` (tight).
+- Nunca uses `font-size` en px directamente; usa los tokens `--text-*`.
 
-Tailwind v4 no usa `tailwind.config.js`. Todos los tokens se definen en `src/index.css` dentro del bloque `@theme {}`. Las utilidades custom (`.clip-rhombus`, `.card-cyber`, `.glass`, `.glow-cyan`, etc.) se declaran como clases CSS estándar en el mismo archivo.
+---
 
-## [AGENTE: FRONTEND PWA] — Reglas de Estilo Adicionales
+## 4. Spacing
 
-Las siguientes reglas se suman a las ya definidas en la sección del agente:
+Usa múltiplos de 4px. Preferir las clases de Tailwind (`gap-2`, `px-4`) o las variables CSS.
 
-6. **Identidad Visual Obligatoria:** Toda nueva vista implementada bajo `MainLayout` o `AuthLayout` debe seguir el sistema de diseño CETZZ NIGHTS sin excepciones. Prohibido usar estilos de componentes genéricos (bordes redondeados, colores planos, fuentes del sistema).
-7. **Componentes UI Reutilizables:** Usar siempre `<CyberButton>`, `<CyberCard>`, `<CyberInput>`, `<NeonBadge>`, `<AppLogo>` de `/src/components/ui/` y `/src/components/layout/`. No duplicar estilos inline que ya estén encapsulados en estos componentes.
-8. **Glow Effects:** Botones primarios deben tener `box-shadow` pulsante. Iconos activos en `<BottomNav>` deben tener `drop-shadow` cian. Números/puntos deben tener `text-shadow` amber.
-9. **Fuente Monospace para Datos:** Cualquier número de puntos, ID, código o dato numérico debe renderizarse con la clase `font-mono` (JetBrains Mono) y color amber con glow.
+| Variable       | Valor |
+|----------------|-------|
+| `--space-1`    | 4px   |
+| `--space-2`    | 8px   |
+| `--space-3`    | 12px  |
+| `--space-4`    | 16px  |
+| `--space-5`    | 20px  |
+| `--space-6`    | 24px  |
+
+- Padding horizontal de página: `px-4` (16px) — `var(--page-padding-x)`.
+- Padding top de página: `pt-5` (20px).
+- Padding bottom de página: usa clase `.pb-nav` para respetar la bottom nav + safe area.
+
+---
+
+## 5. Border radius
+
+| Variable        | Valor  | Uso |
+|-----------------|--------|-----|
+| `--radius-sm`   | 8px    | Chips, badges pequeños |
+| `--radius-md`   | 12px   | Botones, inputs, iconos |
+| `--radius-lg`   | 16px   | Cards compactas |
+| `--radius-xl`   | 20px   | Cards principales |
+| `--radius-2xl`  | 24px   | Modals, bottom sheets |
+| `--radius-full` | 9999px | Pills, avatares |
+
+---
+
+## 6. Sombras y efectos
+
+- Glow del acento lime: `box-shadow: var(--shadow-lime)` — solo en el CTA principal o elemento destacado.
+- Glow blob decorativo: `<div className="glow-blob" style={{ width: 200, height: 200, top: -50, right: -50 }} />` — solo 1–2 por pantalla, con `opacity: 0.15–0.25`.
+- No uses `box-shadow` oscuro en superficies oscuras; usa bordes con opacidad en su lugar.
+- Backdrop blur en bottom nav y modals: `backdrop-filter: blur(24px)` + `background: rgba(8,8,8,0.96)`.
+
+---
+
+## 7. Animaciones (Framer Motion)
+
+### Patrones estándar
+
+```tsx
+// Entrada de página / sección principal
+initial={{ y: 16, opacity: 0 }}
+animate={{ y: 0, opacity: 1 }}
+transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+
+// Entrada escalonada (lista de cards)
+// Wrapper
+initial="hidden"
+animate="visible"
+variants={{ visible: { transition: { staggerChildren: 0.06 } } }}
+// Cada item
+variants={{ hidden: { y: 12, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
+
+// Feedback táctil en botones/cards
+whileTap={{ scale: 0.97 }}
+
+// Aparición suave con delay
+initial={{ y: 16, opacity: 0 }}
+animate={{ y: 0, opacity: 1 }}
+transition={{ delay: 0.08 }}
+
+// Modal / bottom sheet
+initial={{ y: "100%" }}
+animate={{ y: 0 }}
+exit={{ y: "100%" }}
+transition={{ type: "spring", damping: 28, stiffness: 300 }}
+```
+
+### Reglas de animación
+
+- **Siempre** usa `whileTap={{ scale: 0.97 }}` en botones principales y cards presionables.
+- **Nunca** animes `width`, `height` o `layout` sin `layout` prop de Framer — puede causar jank.
+- Delay máximo en stagger: `0.06s` por item. No más de 6 items animados simultáneamente.
+- Duración estándar: `120ms` (micro-interacciones), `220ms` (transiciones), `380ms` (modals).
+- Usa `AnimatePresence` con `mode="wait"` para transiciones de página.
+
+---
+
+## 8. Componentes — Patrones y variantes
+
+### Button
+
+```tsx
+// Variantes: "primary" | "ghost" | "outline" | "danger"
+// Tamaños: "sm" | "md" | "lg"
+// Nunca crear botones con estilos inline completos; usar el componente Button con variant.
+<Button variant="primary" size="lg">Escanear QR</Button>
+```
+
+Estilos por variante:
+- `primary`: `bg: C.lime`, `color: C.bg`, `borderRadius: --radius-md`, font `F.ui` semibold
+- `ghost`: `bg: transparent`, `color: C.textSecondary`, hover `bg: C.surface2`
+- `outline`: `bg: transparent`, `border: C.border`, `color: C.textPrimary`, hover `border: C.borderHover`
+- `danger`: `bg: C.errorDim`, `color: C.error`, `border: C.errorBorder`
+
+### Card
+
+Siempre usa `--radius-xl` y `border: 1px solid C.border`. Hover state: `border-color: C.borderHover`.
+Cards con acento lime: `background: C.limeDim`, `border: C.limeBorder`.
+
+### Input
+
+- `background: C.surface2`, `border: 1px solid C.border`
+- Focus: `border-color: C.limeBorder`, `box-shadow: 0 0 0 3px rgba(200,255,0,0.08)`
+- Error: `border-color: C.errorBorder`
+- `borderRadius: --radius-md`, `padding: 12px 16px`
+
+### Badge / Level chip
+
+```tsx
+// Usa el objeto LEVEL_COLORS para el color del nivel
+const LEVEL_COLORS = {
+  Bronze: "var(--color-level-bronze)",
+  Silver: "var(--color-level-silver)",
+  Gold: "var(--color-level-gold)",
+  Platinum: "var(--color-level-platinum)",
+  Diamond: "var(--color-level-diamond)",
+};
+```
+
+### Bottom Navigation
+
+- Máximo **4 items**.
+- Icono activo: `color: C.lime`, fondo `C.limeDim`, `borderRadius: --radius-md`.
+- Icono inactivo: `color: #555`.
+- Label activo: `color: C.lime`, `fontWeight: 600`.
+- Label inactivo: `color: #444`, `fontWeight: 400`.
+- Siempre incluye `safe-area-inset-bottom`.
+
+---
+
+## 9. Layout y responsive
+
+- La app es **mobile-first** con `maxWidth: 430px` centrado.
+- Nunca uses breakpoints `lg:` o `xl:` — la UI es solo móvil.
+- Usa `sm:` únicamente para ajustes menores de padding/font en pantallas muy pequeñas (< 375px).
+- El contenido principal siempre tiene `pb-nav` para no quedar bajo la bottom nav.
+- Usa `overflow-y: auto` en el `<main>`, nunca en el `<body>`.
+
+---
+
+## 10. Patrones visuales de la app
+
+### Glow blob de fondo (decorativo)
+```tsx
+<div
+  className="absolute pointer-events-none rounded-full"
+  style={{
+    width: 320, height: 256,
+    top: 0, left: "50%", transform: "translateX(-50%)",
+    background: "var(--color-lime-glow)",
+    filter: "blur(80px)",
+    opacity: 0.18,
+  }}
+/>
+```
+Máximo **2 blobs por pantalla**. Uno en top, uno en bottom (opcional).
+
+### Radial gradient de fondo en Layout
+```css
+background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(200,255,0,0.07) 0%, transparent 70%);
+```
+
+### Overline label
+```tsx
+<p className="overline">Mis puntos</p>
+/* o en inline: fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: C.textMuted */
+```
+
+---
+
+## 11. Reglas que NUNCA se deben romper
+
+1. **Nunca** uses colores fuera del design system (ni `#fff`, ni `black`, ni `gray-500` de Tailwind sin mapear a un token).
+2. **Nunca** dupliques componentes UI — si existe en `ui/`, úsalo.
+3. **Nunca** pongas lógica de negocio en componentes de presentación.
+4. **Nunca** uses `style={{ fontFamily: "..." }}` inline — siempre `F.display` o `F.ui` desde `ds.ts`.
+5. **Nunca** uses la bottom nav con más de 4 ítems.
+6. **Nunca** uses `position: absolute` fuera de elementos decorativos (blobs, badges de notificación).
+7. **Siempre** incluye `whileTap={{ scale: 0.97 }}` en botones y cards presionables.
+8. **Siempre** usa `AnimatePresence` si un componente puede aparecer/desaparecer del DOM.
+9. **Siempre** usa `var(--color-*)` en CSS puro y `C.*` en TSX — nunca valores literales.
+10. **Siempre** respeta `maxWidth: 430px` — esta app NO es responsive más allá de móvil.
+
+---
+
+## 12. Referencia rápida de imports
+
+```tsx
+// Tokens de diseño
+import { C, F } from "@/app/components/ui/ds";
+
+// Animaciones
+import { motion, AnimatePresence } from "motion/react";
+
+// Navegación
+import { useNavigate, NavLink } from "react-router";
+
+// Iconos (Lucide)
+import { Bell, Zap, Users, QrCode, TrendingUp, ChevronRight, MapPin, Star } from "lucide-react";
+```

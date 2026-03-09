@@ -5,11 +5,16 @@ import { toast } from "sonner";
 import { getUserProfile, updateUserProfile } from "@/API/UserAPI";
 import type { UpdateProfileDataType } from "@/types/user";
 import { toastApiError } from "@/utils/apiError";
+import { motion } from "motion/react";
+import { User, Calendar, Type, ArrowLeft, Check, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { useNavigate } from "react-router";
 
 export default function ProfileView() {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
-    // 1. Fetching Global (Localizado aquí según requerimiento)
     const { data: profile, isLoading, isError } = useQuery({
         queryKey: ['userProfile'],
         queryFn: getUserProfile,
@@ -17,7 +22,6 @@ export default function ProfileView() {
         refetchOnWindowFocus: false,
     });
 
-    // 2. Definición del Formulario
     const { register, handleSubmit, reset, formState: { errors } } = useForm<UpdateProfileDataType>({
         defaultValues: {
             name: "",
@@ -26,25 +30,22 @@ export default function ProfileView() {
         }
     });
 
-    // 3. Inicializar valores por defecto cuando llega la data
     useEffect(() => {
         if (profile) {
             reset({
                 name: profile.name,
                 lastName: profile.lastName,
-                // Formateamos la fecha si existe para el input type="date"
                 birthdate: profile.birthdate ? new Date(profile.birthdate).toISOString().split('T')[0] : ""
             });
         }
     }, [profile, reset]);
 
-    // 4. Mutación para actualizar
     const { mutate, isPending } = useMutation({
         mutationFn: updateUserProfile,
         onSuccess: (data) => {
-            toast.success(data);
+            toast.success(data || "Perfil actualizado exitosamente");
             queryClient.invalidateQueries({ queryKey: ['userProfile'] });
-            queryClient.invalidateQueries({ queryKey: ['session'] }); // Por si la sesión global usa info de profile
+            queryClient.invalidateQueries({ queryKey: ['session'] });
         },
         onError: toastApiError
     });
@@ -53,61 +54,107 @@ export default function ProfileView() {
         mutate(formData);
     };
 
-    if (isLoading) return <div className="p-8 text-center text-gray-500">Cargando perfil...</div>;
-    if (isError) return <div className="p-8 text-center text-red-500">Error al cargar el perfil.</div>;
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center flex-1 h-full min-h-[100dvh]">
+                <Loader2 size={32} className="text-lime animate-spin mb-4" />
+                <p className="text-text-secondary text-base">Cargando tu perfil...</p>
+            </div>
+        );
+    }
+    
+    if (isError) {
+        return (
+            <div className="flex flex-col items-center justify-center flex-1 h-full min-h-[100dvh]">
+                <p className="text-error text-base mb-4">Error al cargar el perfil</p>
+                <Button variant="outline" onClick={() => navigate(-1)}>Volver</Button>
+            </div>
+        );
+    }
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-800">Perfil de Usuario</h1>
-                <p className="text-gray-500 mt-2">Mantén tus datos actualizados para disfrutar de todos los beneficios.</p>
+        <motion.div 
+            initial={{ y: 16, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+            className="flex flex-col flex-1 pb-nav pt-5 px-4 min-h-[100dvh]"
+        >
+            {/* Header */}
+            <header className="flex items-center gap-4 mb-8">
+                <button 
+                    onClick={() => navigate(-1)}
+                    className="flex justify-center items-center w-10 h-10 rounded-full bg-surface-2 border border-border transition-colors hover:bg-surface-3"
+                >
+                    <ArrowLeft size={20} className="text-text-secondary" />
+                </button>
+                <h1 className="text-2xl font-display font-bold tracking-tight m-0">
+                    Mi Perfil
+                </h1>
+            </header>
+
+            {/* Avatar Placeholder Area */}
+            <div className="flex flex-col items-center mb-8">
+                <div 
+                    className="w-24 h-24 rounded-full flex items-center justify-center mb-4 bg-surface-2 border-2 border-lime-border"
+                >
+                    <User size={40} className="text-lime" />
+                </div>
+                <p className="text-text-secondary font-medium font-ui">
+                    {profile?.email || "usuario@ejemplo.com"}
+                </p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-
+            {/* Form */}
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 flex-1">
+                
                 <div className="flex flex-col gap-2">
-                    <label htmlFor="name" className="font-semibold text-gray-700">Nombre</label>
-                    <input
-                        id="name"
+                    <Input 
+                        label="NOMBRE"
                         type="text"
-                        {...register("name")}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 transition-shadow"
-                        placeholder="Ingresa tu nombre"
+                        placeholder="Tu nombre"
+                        icon={<Type size={20} />}
+                        {...register("name", { required: "Ingresa tu nombre" })}
+                        error={errors.name?.message}
                     />
-                    {errors.name && <span className="text-red-500 text-sm">{errors.name.message}</span>}
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <label htmlFor="lastName" className="font-semibold text-gray-700">Apellido</label>
-                    <input
-                        id="lastName"
+                    <Input 
+                        label="APELLIDO"
                         type="text"
-                        {...register("lastName")}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 transition-shadow"
-                        placeholder="Ingresa tu apellido"
+                        placeholder="Tu apellido"
+                        icon={<Type size={20} />}
+                        {...register("lastName", { required: "Ingresa tu apellido" })}
+                        error={errors.lastName?.message}
                     />
-                    {errors.lastName && <span className="text-red-500 text-sm">{errors.lastName.message}</span>}
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <label htmlFor="birthdate" className="font-semibold text-gray-700">Fecha de Nacimiento</label>
-                    <input
-                        id="birthdate"
+                    <Input 
+                        label="FECHA DE NACIMIENTO"
                         type="date"
+                        icon={<Calendar size={20} />}
                         {...register("birthdate")}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 transition-shadow"
+                        error={errors.birthdate?.message}
+                        style={{
+                            colorScheme: "dark" // helps native date picker use dark theme
+                        }}
                     />
-                    {errors.birthdate && <span className="text-red-500 text-sm">{errors.birthdate.message}</span>}
                 </div>
 
-                <button
-                    type="submit"
-                    disabled={isPending}
-                    className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {isPending ? 'Guardando...' : 'Guardar Cambios'}
-                </button>
+                <div className="mt-auto pt-8 pb-4">
+                    <Button 
+                        type="submit" 
+                        variant="primary" 
+                        size="lg" 
+                        fullWidth 
+                        disabled={isPending}
+                    >
+                        {isPending ? "GUARDANDO..." : "GUARDAR CAMBIOS"}
+                        {!isPending && <Check size={20} className="text-bg" />}
+                    </Button>
+                </div>
             </form>
-        </div>
+        </motion.div>
     );
 }
