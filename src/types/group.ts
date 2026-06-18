@@ -3,6 +3,9 @@ import { z } from "zod";
 export const GROUP_TYPES = ["OPEN", "CLOSED"] as const;
 export type GroupType = typeof GROUP_TYPES[number];
 
+export const GROUP_ROLES = ["LEADER", "CO_LEADER", "MEMBER"] as const;
+export type GroupRole = typeof GROUP_ROLES[number];
+
 export const createGroupSchema = z.object({
   name: z
     .string()
@@ -31,4 +34,26 @@ export interface Group {
   memberships: string[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface GroupMember {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  role: GroupRole;
+}
+
+export interface GroupDetail {
+  id: string;
+  name: string;
+  slug: string;
+  type: GroupType;
+  description: string;
+  avatarUrl: string;
+  memberCount: number;
+  members: GroupMember[];
+  inviteCode?: string;
+  inviteLink?: string;
+  canManage: boolean;
+  currentUserRole: GroupRole;
 }

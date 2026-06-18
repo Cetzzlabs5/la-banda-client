@@ -1,34 +1,123 @@
-import { useLocation, useParams, useNavigate } from "react-router";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router";
 import { motion } from "motion/react";
-import { ArrowLeft, Users, Copy, Check, Crown } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Users, Settings, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
-import type { Group } from "@/types/group";
+import { toast } from "sonner";
+import { getGroupBySlug } from "@/API/GroupAPI";
+import type { GroupDetail } from "@/types/group";
+import GroupMemberList from "./components/GroupMemberList";
+import GroupInviteSection from "./components/GroupInviteSection";
 
-interface LocationState {
-  group?: Group;
-}
+type ErrorType = "not_found" | "forbidden" | "server" | null;
 
 export default function GroupDetailView() {
   const { slug } = useParams<{ slug: string }>();
-  const location = useLocation();
   const navigate = useNavigate();
-  const state = location.state as LocationState | undefined;
-  const group = state?.group;
 
-  const [copied, setCopied] = useState(false);
+  const [group, setGroup] = useState<GroupDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<ErrorType>(null);
 
-  const handleCopyInviteCode = async () => {
-    if (!group?.inviteCode) return;
-    try {
-      await navigator.clipboard.writeText(group.inviteCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Silently fail if clipboard is not available
+  useEffect(() => {
+    if (!slug) {
+      setError("not_found");
+      setLoading(false);
+      return;
     }
+
+    let cancelled = false;
+
+    getGroupBySlug(slug)
+      .then((data) => {
+        if (!cancelled) {
+          if (data) {
+            setGroup(data);
+          } else {
+            setError("not_found");
+          }
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setLoading(false);
+
+        if (
+          err &&
+          typeof err === "object" &&
+          "type" in err &&
+          err.type === "server" &&
+          "status" in err
+        ) {
+          if (err.status === 404) setError("not_found");
+          else if (err.status === 403) setError("forbidden");
+          else setError("server");
+        } else {
+          setError("server");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  const handleSettings = () => {
+    toast.info("Configuración del grupo disponible próximamente");
   };
+
+  const renderError = () => {
+    const configs: Record<
+      NonNullable<ErrorType>,
+      { title: string; message: string }
+    > = {
+      not_found: {
+        title: "Grupo no encontrado",
+        message:
+          "El grupo que buscás no existe o fue eliminado.",
+      },
+      forbidden: {
+        title: "Acceso denegado",
+        message: "No sos miembro de este grupo. Pedí una invitación para unirte.",
+      },
+      server: {
+        title: "Error del servidor",
+        message: "Ocurrió un error inesperado. Intentá de nuevo más tarde.",
+      },
+    };
+
+    const config = configs[error!];
+
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 gap-4 px-4 text-center">
+        <AlertCircle size={48} className="text-text-muted" />
+        <div>
+          <p className="text-text-primary text-lg font-semibold">
+            {config.title}
+          </p>
+          <p className="text-text-secondary text-sm mt-1">{config.message}</p>
+        </div>
+        <Button variant="outline" size="md" onClick={() => navigate("/")}>
+          Volver al inicio
+        </Button>
+      </div>
+    );
+  };
+
+  const renderSkeleton = () => (
+    <div className="flex flex-col items-center gap-6 animate-pulse">
+      <div className="w-24 h-24 rounded-full bg-surface-2 border border-border" />
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-40 h-6 bg-surface-2 rounded-md" />
+        <div className="w-56 h-4 bg-surface-2 rounded-md" />
+      </div>
+      <div className="w-24 h-6 bg-surface-2 rounded-full" />
+      <div className="w-full max-w-sm h-24 bg-surface-2 border border-border rounded-xl" />
+      <div className="w-full max-w-sm h-48 bg-surface-2 border border-border rounded-xl" />
+    </div>
+  );
 
   return (
     <motion.div
@@ -51,8 +140,12 @@ export default function GroupDetailView() {
         </h1>
       </header>
 
-      {group ? (
-        <div className="flex flex-col items-center gap-6">
+      {loading && renderSkeleton()}
+
+      {!loading && error && renderError()}
+
+      {!loading && !error && group && (
+        <div className="flex flex-col items-center gap-6 max-w-sm mx-auto w-full">
           {/* Avatar */}
           <Avatar
             src={group.avatarUrl}
@@ -61,69 +154,64 @@ export default function GroupDetailView() {
             className="border-2 border-lime-border"
           />
 
-          {/* Name */}
+          {/* Name & Description */}
           <div className="text-center">
             <h2 className="text-xl font-display font-bold text-text-primary">
               {group.name}
             </h2>
             {group.description && (
-              <p className="text-text-secondary text-sm mt-1 max-w-xs">
+              <p className="text-text-secondary text-sm mt-1">
                 {group.description}
               </p>
             )}
           </div>
 
-          {/* Type Badge */}
-          <div className="flex items-center gap-2">
-            <Users size={16} className="text-lime" />
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-ui font-medium
-                ${group.type === "OPEN"
-                  ? "bg-lime-dim text-lime"
-                  : "bg-surface-2 text-text-secondary"
+          {/* Type & Member Count */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Users size={16} className="text-lime" />
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-ui font-medium ${
+                  group.type === "OPEN"
+                    ? "bg-lime-dim text-lime"
+                    : "bg-surface-2 text-text-secondary"
                 }`}
-            >
-              {group.type === "OPEN" ? "Abierto" : "Cerrado"}
-            </span>
-          </div>
-
-          {/* Invite Code */}
-          <div className="w-full max-w-sm bg-surface-2 border border-border rounded-xl p-4">
-            <p className="text-text-muted text-xs overline mb-2">CÓDIGO DE INVITACIÓN</p>
-            <div className="flex items-center gap-3">
-              <code className="flex-1 font-mono text-lg text-text-primary bg-surface border border-border rounded-md px-3 py-2">
-                {group.inviteCode}
-              </code>
-              <Button
-                variant="surface"
-                size="sm"
-                onClick={handleCopyInviteCode}
-                aria-label="Copiar código de invitación"
               >
-                {copied ? <Check size={16} className="text-lime" /> : <Copy size={16} />}
-              </Button>
+                {group.type === "OPEN" ? "Abierto" : "Cerrado"}
+              </span>
             </div>
-          </div>
-
-          {/* Leader */}
-          <div className="w-full max-w-sm bg-surface-2 border border-border rounded-xl p-4">
-            <p className="text-text-muted text-xs overline mb-2">LÍDER DEL GRUPO</p>
-            <div className="flex items-center gap-3">
-              <Crown size={16} className="text-lime" />
-              <span className="text-text-primary text-sm font-medium">
-                {group.leader}
+            <div className="flex items-center gap-1.5 text-text-secondary text-sm">
+              <Users size={14} />
+              <span>
+                {group.memberCount}{" "}
+                {group.memberCount === 1 ? "miembro" : "miembros"}
               </span>
             </div>
           </div>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center flex-1 gap-4">
-          <Users size={48} className="text-text-muted" />
-          <p className="text-text-secondary text-base">Grupo no encontrado</p>
-          <p className="text-text-muted text-sm">slug: {slug}</p>
-          <Button variant="outline" size="md" onClick={() => navigate("/groups/create")}>
-            Crear un grupo
-          </Button>
+
+          {/* Members List */}
+          <GroupMemberList members={group.members} />
+
+          {/* Invite Section — visible only for LEADER and CO_LEADER */}
+          {group.inviteCode && group.inviteLink && (
+            <GroupInviteSection
+              inviteCode={group.inviteCode}
+              inviteLink={group.inviteLink}
+            />
+          )}
+
+          {/* Settings — visible only for LEADER */}
+          {group.canManage && (
+            <Button
+              variant="outline"
+              size="md"
+              className="w-full"
+              onClick={handleSettings}
+            >
+              <Settings size={18} className="mr-2" />
+              Configuración del grupo
+            </Button>
+          )}
         </div>
       )}
     </motion.div>

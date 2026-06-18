@@ -13,7 +13,7 @@ export interface ValidationErrorDetail {
 // Define la estructura global de tu error estandarizado
 export type ApiError =
     | { type: 'validation'; details: ValidationErrorDetail[] }
-    | { type: 'server'; message: string }
+    | { type: 'server'; message: string; status?: number }
     | { type: 'unknown'; message: string };
 
 export const throwStandardError = (error: unknown): never => {
@@ -32,7 +32,8 @@ export const throwStandardError = (error: unknown): never => {
         if (data.message) {
             throw {
                 type: 'server',
-                message: data.message
+                message: data.message,
+                status: error.response.status
             };
         }
     }

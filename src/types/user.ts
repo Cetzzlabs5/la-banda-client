@@ -28,6 +28,7 @@ export type OnboardingDataType = z.infer<typeof onboardingSchema>;
 
 export interface GroupMembership {
     groupId: string;
+    slug: string;
     name: string;
     avatarUrl?: string;
     role: 'admin' | 'member' | 'moderator';

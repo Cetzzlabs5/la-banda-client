@@ -13,6 +13,7 @@ import ForgotPasswordView from './views/auth/ForgotPasswordView'
 import NewPasswordView from './views/auth/NewPasswordView'
 import GroupCreateView from './views/groups/GroupCreateView'
 import GroupDetailView from './views/groups/GroupDetailView'
+import GroupsListView from './views/groups/GroupsListView'
 
 export default function Router() {
     return (
@@ -36,6 +37,7 @@ export default function Router() {
                 <Route element={<MainLayout />}>
                     <Route path="/" element={<Home />} />
                     <Route path="/onboarding" element={<OnboardingView />} />
+                    <Route path="/groups" element={<GroupsListView />} />
                     <Route path="/groups/create" element={<GroupCreateView />} />
                     <Route path="/groups/:slug" element={<GroupDetailView />} />
                 </Route>
