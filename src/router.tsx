@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
 import Home from './views/Home'
 import { Toaster } from 'sonner'
 import AuthLayout from './layouts/AuthLayout'
@@ -8,8 +8,11 @@ import ConfirmAccountView from './views/auth/ConfirmAccountView'
 import LoginView from './views/auth/LoginView'
 import MainLayout from './layouts/MainLayout'
 import ProfileView from './views/user/ProfileView'
+import OnboardingView from './views/onboarding/OnboardingView'
 import ForgotPasswordView from './views/auth/ForgotPasswordView'
 import NewPasswordView from './views/auth/NewPasswordView'
+import GroupCreateView from './views/groups/GroupCreateView'
+import GroupDetailView from './views/groups/GroupDetailView'
 
 export default function Router() {
     return (
@@ -17,7 +20,6 @@ export default function Router() {
             <Toaster position="top-center" />
 
             <Routes>
-                <Route path="/" element={<Home />} />
                 <Route element={<AuthLayout />}>
                     <Route path="/register" element={<RegisterView />} />
                     <Route path="/request-code" element={<RequestNewCodeView />} />
@@ -27,8 +29,15 @@ export default function Router() {
                     <Route path="/new-password" element={<NewPasswordView />} />
                 </Route>
 
-                <Route path='/bar' element={<MainLayout />}>
+                <Route path='/profile' element={<MainLayout />}>
                     <Route index element={<ProfileView />} />
+                </Route>
+
+                <Route element={<MainLayout />}>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/onboarding" element={<OnboardingView />} />
+                    <Route path="/groups/create" element={<GroupCreateView />} />
+                    <Route path="/groups/:slug" element={<GroupDetailView />} />
                 </Route>
             </Routes>
         </BrowserRouter>

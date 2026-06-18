@@ -169,4 +169,68 @@ describe('useAuth', () => {
       expect(mockLogout).toHaveBeenCalled();
     });
   });
+
+  describe('isProfileComplete', () => {
+    it('should return false when profileComplete is false', async () => {
+      mockSession.mockResolvedValue({
+        id: '1',
+        name: 'Test',
+        email: 'test@example.com',
+        profileComplete: false,
+      } as any);
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(result.current.isProfileComplete).toBe(false);
+    });
+
+    it('should return false when profileComplete is undefined', async () => {
+      mockSession.mockResolvedValue({
+        id: '1',
+        name: 'Test',
+        email: 'test@example.com',
+      } as any);
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(result.current.isProfileComplete).toBe(false);
+    });
+
+    it('should return true when profileComplete is true', async () => {
+      mockSession.mockResolvedValue({
+        id: '1',
+        name: 'Test',
+        email: 'test@example.com',
+        profileComplete: true,
+      } as any);
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(result.current.isProfileComplete).toBe(true);
+    });
+
+    it('should return false when profile data is null', async () => {
+      mockSession.mockRejectedValue(new Error('Unauthorized'));
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(result.current.isProfileComplete).toBe(false);
+    });
+  });
 });

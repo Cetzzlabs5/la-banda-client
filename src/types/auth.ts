@@ -6,7 +6,7 @@ export interface Auth {
     email: string;
     phone?: string;
     fullName?: string;
-    birthdate?: Date;
+    birthdate?: string;
 }
 
 export type RequestToken = Pick<Auth, 'email'>
@@ -23,4 +23,5 @@ export interface User extends Auth {
     _id: string
     isActive: boolean
     role: string
+    profileComplete?: boolean
 }

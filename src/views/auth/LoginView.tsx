@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form"
 import type { LoginFormDataType } from "@/types/auth"
 import { toastApiError } from "@/utils/apiError"
 import { toast } from "sonner"
-import { useMutation } from "@tanstack/react-query"
-import { login } from "@/API/AuthAPI"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { login, session } from "@/API/AuthAPI"
 import { useNavigate, Link } from "react-router"
 import { motion } from "motion/react"
 import { Eye, EyeOff, Zap, ArrowRight } from "lucide-react"
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/Input"
 
 export default function LoginView() {
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
     const [showPassword, setShowPassword] = useState(false)
     
     const defaultValues: LoginFormDataType = {
@@ -26,9 +27,11 @@ export default function LoginView() {
 
     const { mutate, isPending } = useMutation({
         mutationFn: login,
-        onSuccess: () => {
+        onSuccess: async () => {
             toast.success('Login exitoso')
-            navigate('/bar')
+            const user = await session()
+            queryClient.setQueryData(['session'], user)
+            navigate(user?.profileComplete ? '/' : '/onboarding')
         },
         onError: toastApiError
     })

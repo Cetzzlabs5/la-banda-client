@@ -18,20 +18,23 @@ export const useAuth = () => {
         mutationFn: logout,
         onSuccess: () => {
             queryClient.setQueryData(['session'], null);
-            navigate('/auth/login');
+            navigate('/login');
         },
         onError: () => {
             queryClient.setQueryData(['session'], null);
-            navigate('/auth/login');
+            navigate('/login');
         }
     })
 
     const logoutUser = () => mutate()
 
+    const isProfileComplete = !!data?.profileComplete
+
     return {
         data: data || null,
         isError,
         isLoading,
-        logoutUser
+        logoutUser,
+        isProfileComplete
     }
 } 
