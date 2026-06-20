@@ -56,4 +56,32 @@ export interface GroupDetail {
   inviteLink?: string;
   canManage: boolean;
   currentUserRole: GroupRole;
+  pendingRequestsCount?: number;
+}
+
+export type GroupUserStatus = "member" | "banned" | "pending" | "available";
+
+export interface GroupInviteInfo {
+  id: string;
+  name: string;
+  slug: string;
+  type: GroupType;
+  description: string;
+  avatarUrl: string;
+  memberCount: number;
+  inviteCode: string;
+  userStatus?: GroupUserStatus;
+  message?: string;
+}
+
+export interface GroupRequestUser {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+}
+
+export interface GroupJoinRequest {
+  id: string;
+  user: GroupRequestUser;
+  createdAt: string;
 }

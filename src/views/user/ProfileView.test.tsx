@@ -36,7 +36,7 @@ vi.mock('@/utils/cropImageToSquare', () => ({
   cropImageToSquare: vi.fn((file: File) => Promise.resolve(file)),
 }));
 
-import { getUserProfile, getUserGroups, updateUserProfile, uploadAvatar } from '@/API/UserAPI';
+import { getUserProfile, getUserGroups, updateUserProfile } from '@/API/UserAPI';
 import { useAuth } from '@/hooks/useAuth';
 
 const mockGetUserProfile = vi.mocked(getUserProfile);
@@ -59,8 +59,8 @@ describe('ProfileView', () => {
   };
 
   const mockGroups = [
-    { groupId: 'g1', name: 'La Banda', role: 'admin' as const, avatarUrl: 'https://example.com/g1.jpg' },
-    { groupId: 'g2', name: 'Amigos', role: 'member' as const },
+    { groupId: 'g1', slug: 'la-banda', name: 'La Banda', role: 'admin' as const, avatarUrl: 'https://example.com/g1.jpg' },
+    { groupId: 'g2', slug: 'amigos', name: 'Amigos', role: 'member' as const },
   ];
 
   beforeEach(() => {

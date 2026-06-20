@@ -43,6 +43,9 @@
       "@/hooks/*": [
         "hooks/*"
       ],
+      "@/test/*": [
+        "test/*"
+      ]
     },
     /* Bundler mode */
     "moduleResolution": "bundler",

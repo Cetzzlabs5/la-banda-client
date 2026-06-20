@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
+import { BrowserRouter, Routes, Route } from 'react-router'
 import Home from './views/Home'
 import { Toaster } from 'sonner'
 import AuthLayout from './layouts/AuthLayout'
@@ -14,6 +14,7 @@ import NewPasswordView from './views/auth/NewPasswordView'
 import GroupCreateView from './views/groups/GroupCreateView'
 import GroupDetailView from './views/groups/GroupDetailView'
 import GroupsListView from './views/groups/GroupsListView'
+import JoinGroupView from './views/groups/JoinGroupView'
 
 export default function Router() {
     return (
@@ -41,6 +42,7 @@ export default function Router() {
                     <Route path="/groups/create" element={<GroupCreateView />} />
                     <Route path="/groups/:slug" element={<GroupDetailView />} />
                 </Route>
+                <Route path="/unirse/:inviteCode" element={<JoinGroupView />} />
             </Routes>
         </BrowserRouter>
     )

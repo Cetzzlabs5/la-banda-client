@@ -1,8 +1,6 @@
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route, MemoryRouter } from 'react-router';
+import { render, screen } from '@testing-library/react';
+import { Routes, Route, MemoryRouter } from 'react-router';
 import MainLayout from './MainLayout';
 
 // Mock the useAuth hook
@@ -13,23 +11,6 @@ vi.mock('@/hooks/useAuth', () => ({
 import { useAuth } from '@/hooks/useAuth';
 
 const mockUseAuth = vi.mocked(useAuth);
-
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false, gcTime: 0 },
-      mutations: { retry: false },
-    },
-  });
-
-  const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{children}</BrowserRouter>
-    </QueryClientProvider>
-  );
-
-  return Wrapper;
-};
 
 describe('MainLayout', () => {
   beforeEach(() => {

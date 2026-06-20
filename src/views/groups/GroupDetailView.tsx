@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { ArrowLeft, Users, Settings, AlertCircle } from "lucide-react";
@@ -9,6 +9,7 @@ import { getGroupBySlug } from "@/API/GroupAPI";
 import type { GroupDetail } from "@/types/group";
 import GroupMemberList from "./components/GroupMemberList";
 import GroupInviteSection from "./components/GroupInviteSection";
+import PendingRequestsList from "./components/PendingRequestsList";
 
 type ErrorType = "not_found" | "forbidden" | "server" | null;
 
@@ -19,6 +20,11 @@ export default function GroupDetailView() {
   const [group, setGroup] = useState<GroupDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ErrorType>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refetch = useCallback(() => {
+    setRefreshKey((k) => k + 1);
+  }, []);
 
   useEffect(() => {
     if (!slug) {
@@ -28,6 +34,8 @@ export default function GroupDetailView() {
     }
 
     let cancelled = false;
+    setLoading(true);
+    setError(null);
 
     getGroupBySlug(slug)
       .then((data) => {
@@ -62,7 +70,19 @@ export default function GroupDetailView() {
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, refreshKey]);
+
+  useEffect(() => {
+    if (group && group.canManage && (group.pendingRequestsCount ?? 0) > 0) {
+      toast.info(
+        `Tenés ${group.pendingRequestsCount} solicitud${group.pendingRequestsCount === 1 ? "" : "es"} de unión pendiente`,
+        {
+          id: `pending-requests-${slug}`,
+          duration: 5000,
+        }
+      );
+    }
+  }, [group, slug]);
 
   const handleSettings = () => {
     toast.info("Configuración del grupo disponible próximamente");
@@ -192,11 +212,21 @@ export default function GroupDetailView() {
           {/* Members List */}
           <GroupMemberList members={group.members} />
 
+          {/* Pending Requests — visible only for LEADER */}
+          {group.canManage && (
+            <PendingRequestsList
+              slug={group.slug}
+              onRefetch={refetch}
+            />
+          )}
+
           {/* Invite Section — visible only for LEADER and CO_LEADER */}
           {group.inviteCode && group.inviteLink && (
             <GroupInviteSection
               inviteCode={group.inviteCode}
               inviteLink={group.inviteLink}
+              groupName={group.name}
+              slug={group.slug}
             />
           )}
 

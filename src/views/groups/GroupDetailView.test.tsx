@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import { Routes, Route } from 'react-router';
@@ -29,6 +28,16 @@ vi.mock('sonner', () => ({
     info: vi.fn(),
   },
 }));
+
+// Mock getGroupQRUrl and getGroupRequests
+vi.mock('@/API/GroupAPI', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/API/GroupAPI')>();
+  return {
+    ...actual,
+    getGroupQRUrl: vi.fn(() => 'https://api.example.com/groups/test-group/qr'),
+    getGroupRequests: vi.fn(() => Promise.resolve([])),
+  };
+});
 
 // Mock clipboard
 Object.assign(navigator, {

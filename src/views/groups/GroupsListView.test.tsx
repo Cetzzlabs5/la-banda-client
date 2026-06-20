@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, fireEvent } from '@testing-library/react';
 import { Routes, Route } from 'react-router';
@@ -25,7 +24,6 @@ const mockGroups: GroupMembership[] = [
     groupId: 'g2',
     slug: 'las-chicas',
     name: 'Las Chicas',
-    avatarUrl: null,
     role: 'member',
   },
   {

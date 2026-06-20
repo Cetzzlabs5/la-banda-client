@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { motion } from "motion/react";
-import { Users, Plus, Loader2, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { Users, Plus, Loader2, ChevronRight, ArrowRight, KeyRound } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { getUserGroups } from "@/API/UserAPI";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Líder",
@@ -15,6 +17,8 @@ const ROLE_LABELS: Record<string, string> = {
 export default function GroupsListView() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [inviteCode, setInviteCode] = useState("");
+  const [showCodeInput, setShowCodeInput] = useState(false);
 
   const {
     data: groups,
@@ -26,6 +30,14 @@ export default function GroupsListView() {
     retry: 1,
     refetchOnWindowFocus: false,
   });
+
+  const handleJoinByCode = (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = inviteCode.trim().toUpperCase();
+    if (code.length === 6 && /^[A-Z0-9]+$/.test(code)) {
+      navigate(`/unirse/${code}`);
+    }
+  };
 
   return (
     <motion.div
@@ -45,6 +57,52 @@ export default function GroupsListView() {
           </Button>
         </Link>
       </header>
+
+      {/* Join by code */}
+      {!isLoading && (
+        <div className="mb-6">
+          {!showCodeInput ? (
+            <Button
+              variant="outline"
+              size="md"
+              fullWidth
+              onClick={() => setShowCodeInput(true)}
+            >
+              <KeyRound size={18} className="mr-2" />
+              Unirme con código
+            </Button>
+          ) : (
+            <AnimatePresence>
+              <motion.form
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                onSubmit={handleJoinByCode}
+                className="flex items-center gap-2"
+              >
+                <Input
+                  placeholder="Código de invitación (6 caracteres)"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                  maxLength={6}
+                  className="flex-1"
+                  aria-label="Código de invitación"
+                  autoFocus
+                />
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="sm"
+                  disabled={inviteCode.trim().length !== 6}
+                  aria-label="Unirse por código"
+                >
+                  <ArrowRight size={18} />
+                </Button>
+              </motion.form>
+            </AnimatePresence>
+          )}
+        </div>
+      )}
 
       {/* Loading */}
       {isLoading && (
