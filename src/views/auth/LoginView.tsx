@@ -5,22 +5,13 @@ import { toastApiError } from "@/utils/apiError"
 import { toast } from "sonner"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { login, session } from "@/API/AuthAPI"
-import { useNavigate, Link, useLocation, useSearchParams } from "react-router"
+import { Link } from "react-router"
 import { motion } from "motion/react"
 import { Eye, EyeOff, Zap, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 
-function getPostLoginRedirect(location: ReturnType<typeof useLocation>, searchParams: URLSearchParams): string | null {
-    const fromState = (location.state as { from?: string } | null)?.from
-    const redirectParam = searchParams.get("redirect")
-    return fromState || redirectParam || null
-}
-
 export default function LoginView() {
-    const navigate = useNavigate()
-    const location = useLocation()
-    const [searchParams] = useSearchParams()
     const queryClient = useQueryClient()
     const [showPassword, setShowPassword] = useState(false)
     
@@ -39,13 +30,7 @@ export default function LoginView() {
             toast.success('Login exitoso')
             const user = await session()
             queryClient.setQueryData(['session'], user)
-
-            const redirectTo = getPostLoginRedirect(location, searchParams)
-            if (redirectTo) {
-                navigate(redirectTo)
-                return
-            }
-            navigate(user?.profileComplete ? '/' : '/onboarding')
+            // AuthLayout se encarga del redirect post-login (respeta state.from / ?redirect)
         },
         onError: toastApiError
     })
