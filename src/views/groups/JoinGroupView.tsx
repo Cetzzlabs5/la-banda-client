@@ -76,6 +76,7 @@ export default function JoinGroupView() {
     setJoining(true);
     try {
       const result = await joinGroup(inviteCode);
+      if (!result) return;
 
       if ("group" in result && result.group) {
         toast.success(result.message || "Te uniste al grupo exitosamente");

@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Outlet, Navigate, useLocation, Link } from "react-router";
-import { Home, Users, User } from "lucide-react";
+import { Home, Users, User, Store } from "lucide-react";
 
 export default function MainLayout() {
     const { data, isLoading, isProfileComplete } = useAuth()
@@ -37,6 +37,14 @@ export default function MainLayout() {
                     >
                         <Users size={24} />
                         <span className="text-[10px] font-ui font-medium">Grupos</span>
+                    </Link>
+                    <Link
+                        to="/bar/mis-bares"
+                        className={`flex flex-col items-center justify-center gap-1 w-16 h-full transition-colors ${location.pathname.startsWith('/bar') ? 'text-lime' : 'text-text-secondary hover:text-text-primary'}`}
+                        aria-label="Mis bares"
+                    >
+                        <Store size={24} />
+                        <span className="text-[10px] font-ui font-medium">Mis bares</span>
                     </Link>
                     <Link
                         to="/profile"

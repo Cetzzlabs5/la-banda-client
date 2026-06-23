@@ -15,6 +15,8 @@ import GroupCreateView from './views/groups/GroupCreateView'
 import GroupDetailView from './views/groups/GroupDetailView'
 import GroupsListView from './views/groups/GroupsListView'
 import JoinGroupView from './views/groups/JoinGroupView'
+import BarRegisterView from './views/bar/BarRegisterView'
+import MyBarsView from './views/bar/MyBarsView'
 
 export default function Router() {
     return (
@@ -41,6 +43,8 @@ export default function Router() {
                     <Route path="/groups" element={<GroupsListView />} />
                     <Route path="/groups/create" element={<GroupCreateView />} />
                     <Route path="/groups/:slug" element={<GroupDetailView />} />
+                    <Route path="/bar/registro" element={<BarRegisterView />} />
+                    <Route path="/bar/mis-bares" element={<MyBarsView />} />
                 </Route>
                 <Route path="/unirse/:inviteCode" element={<JoinGroupView />} />
             </Routes>
