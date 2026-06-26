@@ -10,6 +10,7 @@ import {
   Clock,
   ClockAlert,
   CheckCircle2,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { getMyBars } from "@/API/BarAPI";
@@ -61,17 +62,31 @@ function formatSchedule(slots: BarScheduleSlot[]): string {
 }
 
 function BarCard({ bar }: { bar: MyBar }) {
+  const navigate = useNavigate();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col gap-3 p-4 rounded-lg bg-surface-2 border border-border"
+      onClick={() => navigate(`/bar/${bar.id}/perfil`)}
+      className="flex flex-col gap-3 p-4 rounded-lg bg-surface-2 border border-border cursor-pointer transition-colors hover:border-border-hover active:bg-surface-3"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          navigate(`/bar/${bar.id}/perfil`);
+        }
+      }}
     >
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-lg font-display font-bold tracking-tight leading-tight">
           {bar.name}
         </h2>
-        <StatusBadge status={bar.status} />
+        <div className="flex items-center gap-2">
+          <StatusBadge status={bar.status} />
+          <ChevronRight size={18} className="text-text-muted shrink-0" />
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5 text-sm text-text-secondary">

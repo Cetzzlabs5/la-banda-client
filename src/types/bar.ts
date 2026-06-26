@@ -24,6 +24,8 @@ export interface Bar {
   schedule: BarScheduleSlot[];
   description?: string;
   status: BarStatus;
+  logoUrl?: string;
+  coverUrl?: string;
 }
 
 export interface MyBar extends Bar {
@@ -82,3 +84,18 @@ export const DAY_NAMES = [
   "Viernes",
   "Sábado",
 ] as const;
+
+export const editBarProfileSchema = z.object({
+  name: z
+    .string()
+    .min(3, "Mínimo 3 caracteres")
+    .max(60, "Máximo 60 caracteres"),
+  description: z
+    .string()
+    .max(120, "Máximo 120 caracteres")
+    .optional()
+    .or(z.literal("")),
+  phone: z.string().min(1, "El teléfono es requerido"),
+});
+
+export type EditBarProfileFormData = z.infer<typeof editBarProfileSchema>;
